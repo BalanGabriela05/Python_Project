@@ -23,3 +23,4 @@ def is_valid_score(score: int)-> bool:
     bool: True if the score is valid, False otherwise.
     """
     return 1 <= score <= 10
+
