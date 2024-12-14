@@ -1,0 +1,6 @@
+psycopg2    # pt PostgreSQL
+SQLAlchemy  # pt ORM (iteractiune simplu cu db)
+requests    # pt HTTP (caut trailer)
+youtube-search-python # pt cautare pe yt
+
+#pip install -r requirements.txt
