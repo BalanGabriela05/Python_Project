@@ -28,3 +28,47 @@ def add_series(db: Session, user_id: int, name: str, imdb_link: str, last_episod
     db.commit()
     db.refresh(new_series)
     return new_series
+
+def delete_series(db: Session, user_id: int, series_id: int) -> bool:
+    """
+    Deletes a series from the database.
+
+    Parameters:
+    db (Session): The database session.
+    user_id (int): The ID of the user deleting the series.
+    series_id (int): The ID of the series to delete.
+
+    Returns:
+    bool: True if the series is successfully deleted, False otherwise.
+
+    """
+    series = db.query(Series).filter(Series.id == series_id, Series.user_id == user_id).first()
+    if not series:
+        # series not found
+        return False
+    db.delete(series)
+    db.commit()
+    return True
+
+def update_score(db: Session, user_id: int, series_id: int, new_score: int) -> Series:
+    """
+    Updates the score of a series.
+
+    Parameters:
+    db (Session): The database session.
+    user_id (int): The ID of the user updating the score.
+    series_id (int): The ID of the series to update.
+    new_score (int): The new score of the series between 1 and 10.
+
+    Returns:
+    updated_series (Series): The updated series.
+
+    """
+    series = db.query(Series).filter(Series.id == series_id, Series.user_id == user_id).first()
+    if not series:
+        print("Series not found.")
+        return None
+    series.score = new_score
+    db.commit()
+    db.refresh(series)
+    return series
