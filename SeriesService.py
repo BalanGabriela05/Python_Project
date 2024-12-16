@@ -72,3 +72,27 @@ def update_score(db: Session, user_id: int, series_id: int, new_score: int) -> S
     db.commit()
     db.refresh(series)
     return series
+
+def snooze_unsnooze_series(db: Session, user_id: int, series_id: int) -> Series:
+    """
+    Snoozes a series.
+
+    Parameters:
+    db (Session): The database session.
+    user_id (int): The ID of the user snoozing the series.
+    series_id (int): The ID of the series to snooze.
+
+    Returns:
+    snoozed_series (Series): The snoozed series.
+
+    """
+    series = db.query(Series).filter(Series.id == series_id, Series.user_id == user_id).first()
+    if not series:
+        print("Series not found.")
+        return None
+    series.snoozed = not series.snoozed
+    db.commit()
+    db.refresh(series)
+    print(f"New snoozed status: {series.snoozed}")
+
+    return series.snoozed
