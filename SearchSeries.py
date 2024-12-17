@@ -1,5 +1,7 @@
 import requests
 import re
+from sqlalchemy.orm import Session
+from database.Models import Series, Notifications
 
 def extract_imdb_id(imdb_link):
     """
@@ -39,8 +41,16 @@ def extract_number_season_episode(episode_str):
 TMDB_API_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjMmVhYzUwM2M5MDUzNGJiZGZlMDI2NmQzYTU3YTlmMiIsIm5iZiI6MTczNDI5MjcyMy44MzksInN1YiI6IjY3NWYzNGYzZDZmNWU4NDU4YjhiNDZmOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.66CEr0xeGc7xysF7MQb-dxur891eTM45roAfJZzZgI0" 
 BASE_URL = "https://api.themoviedb.org/3"
 
-# function to get show by imdb id
 def get_show_by_imdb(imdb_id: str):
+    """
+    Get show information by IMDB ID.
+
+    Parameters:
+    imdb_id (str): The IMDB ID.
+
+    Returns: show ID
+    """
+
     url = f"{BASE_URL}/find/{imdb_id}"
     headers = {
         "Authorization": f"Bearer {TMDB_API_TOKEN}",
@@ -56,8 +66,18 @@ def get_show_by_imdb(imdb_id: str):
         print(f"Error fetching show: {response.status_code}")
         return None
 
-# function to get all episodes of a show
+
 def get_episodes(show_id: int, season_number: int):
+    """
+    Get episodes of a show by show ID and season number.
+
+    Parameters:
+    show_id (int): The show ID.
+    season_number (int): The season number.
+
+    Returns: the next episode of the show afeter the last watched episode
+    """
+
     url = f"{BASE_URL}/tv/{show_id}/season/{season_number}"
     headers = {
         "Authorization": f"Bearer {TMDB_API_TOKEN}",
@@ -71,43 +91,62 @@ def get_episodes(show_id: int, season_number: int):
         return []
 
 
-def main():
-    episode_str = "S9E4"
-    season, episode = extract_number_season_episode(episode_str)
-    print(f"Season: {season}, Episode: {episode}")  # Output: Season: 9, Episode: 4
+def save_series_notification(db: Session, series_id: int, last_episode: str) -> bool:
+    """
+    Save a notification for the next episode of a series.
 
-    imdb_id = input("Enter IMDb ID (e.g., tt0944947 for Game of Thrones): ")
-    last_season = int(input("Last season watched: "))
-    last_episode = int(input("Last episode watched: "))
+    Parameters:
+    db (Session): The database session.
+    series_id (int): The ID of the series.
+    last_episode (str): The last episode watched in format SXEY.
 
+    Returns: True if the notification is saved successfully, False otherwise.
+    """
 
-    show = get_show_by_imdb(imdb_id)
-    if not show:
-        print("Show not found!")
+    series = db.query(Series).filter(Series.id == series_id).first()
+    if not series:
+        print("Series not found.")
         return
 
-    print(f"Found show: {show['name']}")
-
-    episodes = get_episodes(show["id"], last_season)
+    show = get_show_by_imdb(extract_imdb_id(series.imdb_link))
+    if not show:
+        print("Show not found.")
+        return
+    
+    nr_season, nr_episode = extract_number_season_episode(last_episode)
+    episodes = get_episodes(show["id"], nr_season)
+    if not episodes:
+        print("No episodes found.")
+        return
 
     next_episodes = []
     for episode in episodes:
-        if episode["episode_number"] > last_episode:
+        if episode["episode_number"] > nr_episode:
             next_episodes.append(episode)
-        if len(next_episodes) == 2:  # stop after finding 2 episodes
+        if len(next_episodes) == 1:  # stop after finding 1 episode
             break
 
-    if len(next_episodes) < 2:
-        next_season_episodes = get_episodes(show["id"], last_season + 1)
-        next_episodes.extend(next_season_episodes[:2 - len(next_episodes)])
+    if len(next_episodes) < 1:
+        next_season_episodes = get_episodes(show["id"], nr_season + 1)
+        next_episodes.extend(next_season_episodes[:1 - len(next_episodes)])  
 
- 
     if next_episodes:
-        print("Next episodes:")
-        for ep in next_episodes:
-            print(f"Season {ep['season_number']} Episode {ep['episode_number']}: {ep['name']}")
+        for episode in next_episodes:
+            notification = Notifications(
+                series_id=series_id,
+                notification_date=episode["air_date"],
+                new_episode=f"Season {episode['season_number']} Episode {episode['episode_number']}: {episode['name']}",
+                youtube_trailer=f"https://www.youtube.com"
+            )
+            db.add(notification)
     else:
-        print("No new episodes found.")
+        notification = Notifications(
+            series_id=series_id,
+            notification_date=None,
+            new_episode="The next episode has not been released yet.",
+            youtube_trailer=f"https://www.youtube.com"
+        )
+        db.add(notification)
 
-if __name__ == "__main__":
-    main()
+    db.commit()
+    return True

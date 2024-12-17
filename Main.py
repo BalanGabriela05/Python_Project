@@ -1,11 +1,11 @@
 import sys
 from database.Connection import get_db
-from database.Models import User  
+from database.Models import User, Series, Notifications  
 from SeriesService import add_series, delete_series, update_score, snooze_unsnooze_series
 from UserService import login, sign_up
 from Validation import is_valid_episode_format, is_valid_score
-from SearchSeries import get_show_by_imdb, get_episodes, extract_imdb_id, extract_number_season_episode
-
+from SearchSeries import save_series_notification
+from NotificationsService import list_notifications
 
 def main():
     # Get the database session
@@ -22,7 +22,9 @@ def main():
         a. Add series
         b. Delete series
         c. Update score
-        d. Log out
+        d. Snooze/Unsnooze series
+        e. List notifications for series
+        f. Log out
 
         """
         if not user_logged_in:
@@ -53,7 +55,8 @@ def main():
             print("b. Delete series")
             print("c. Update score")
             print("d. Snooze/Unsnooze series")
-            print("e. Log out")
+            print("e. List notifications for series")
+            print("f. Log out")
             choice = input("Choose an option: ")
 
             if choice == "a":
@@ -64,43 +67,27 @@ def main():
                     print("Invalid format. Please use SXEY where X and Y are numbers.")
                     last_episode = input("Last episode watched (format SXEY): ")
 
-                score = int(input("Score (1-10): "))
+                score = float(input("Score (1-10): "))
                 while not is_valid_score(score):
                     print("Invalid score. Please enter a number between 1 and 10.")
-                    score = int(input("Score (1-10): "))
+                    score = float(input("Score (1-10): "))
+
+                snoozed = int(input("Snoozed (1 for True, 0 for False): "))
+                while not snoozed in [0, 1]:
+                    print("Invalid snoozed value. Please enter 1 or 0.")
+                    snoozed = int(input("Snoozed (1 for True, 0 for False): "))
                 
-                add_series(db, user_id, name, imdb_link, last_episode, score)
+                add_series(db, user_id, name, imdb_link, last_episode, score, snoozed)
                 print("Series added!")
 
-                print("Notifying the next episodes to watch:")
+                # Save notification for the next episode
+                series_id = db.query(Series).filter(Series.name == name, Series.user_id == user_id).first().id
 
-                show = get_show_by_imdb(extract_imdb_id(imdb_link))
-                if not show:
-                    print("Show not found!")
-                    return  
-                
-                nr_season, nr_episode = extract_number_season_episode(last_episode)
-                episodes = get_episodes(show["id"], nr_season)
-
-                next_episodes = []
-                for episode in episodes:
-                    if episode["episode_number"] > nr_episode:
-                        next_episodes.append(episode)
-                    if len(next_episodes) == 2:  # stop after finding 2 episodes
-                        break
-
-                if len(next_episodes) < 2:
-                    next_season_episodes = get_episodes(show["id"], nr_season + 1)
-                    next_episodes.extend(next_season_episodes[:2 - len(next_episodes)])
-
-                if next_episodes:
-                    print("Next episodes:")
-                    for ep in next_episodes:
-                        print(f"Season {ep['season_number']} Episode {ep['episode_number']}: {ep['name']}")
+                if save_series_notification(db, series_id, last_episode):
+                    print("Notification saved.")
                 else:
-                    print("No new episodes found.")
+                    print("Notification not saved.")
                 
-
             elif choice == "b":
                 series_id = int(input("Enter the ID of the series to delete: "))
                 if delete_series(db, user_id, series_id):
@@ -110,10 +97,10 @@ def main():
 
             elif choice == "c":
                 series_id = int(input("Enter the ID of the series to update: "))
-                new_score = int(input("Enter the new score (1-10): "))
+                new_score = float(input("Enter the new score (1-10): "))
                 while not is_valid_score(new_score):
                     print("Invalid score. Please enter a number between 1 and 10.")
-                    new_score = int(input("Enter the new score (1-10): "))
+                    new_score = float(input("Enter the new score (1-10): "))
                 
                 update_score(db, user_id, series_id, new_score)
                 print("Score updated.")
@@ -125,7 +112,11 @@ def main():
                 else:
                     print("Series unsnoozed.")
 
+
             elif choice == "e":
+                list_notifications(db, user_id)
+
+            elif choice == "f":
                 print(f"Goodbye, {user_logged_in}!")
                 user_logged_in = None  
                 sys.exit()  

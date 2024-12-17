@@ -12,7 +12,7 @@ def is_valid_episode_format(episode: str) -> bool:
     """
     return re.match(r'^S[1-9]\d*E\d*$', episode) is not None
 
-def is_valid_score(score: int)-> bool:
+def is_valid_score(score: float)-> bool:
     """
     Check if the score is valid.
 

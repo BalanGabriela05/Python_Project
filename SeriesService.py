@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from database.Models import Series
 
-def add_series(db: Session, user_id: int, name: str, imdb_link: str, last_episode: str, score: int) -> Series:
+def add_series(db: Session, user_id: int, name: str, imdb_link: str, last_episode: str, score: int, snoozed: bool) -> Series:
     """
     Adds a new series to the database.
 
@@ -22,7 +22,8 @@ def add_series(db: Session, user_id: int, name: str, imdb_link: str, last_episod
         name=name,
         imdb_link=imdb_link,
         last_episode=last_episode,
-        score=score
+        score=score,
+        snoozed=snoozed
     )
     db.add(new_series)
     db.commit()

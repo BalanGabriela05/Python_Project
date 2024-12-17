@@ -43,3 +43,22 @@ class Series(Base):
     last_viewed_date = Column(Date)
     score = Column(Integer, nullable=False)
     snoozed = Column(Boolean, default=False)
+
+class Notifications(Base):
+    """
+    Notification model for storing series notifications
+
+    Attributes:
+    id (int): The ID of the notification.
+    series_id (int): The ID of the series.
+    notification_date (Date): The date of the notification.
+    new_episode (str): The new episode information.
+
+    """
+    
+    __tablename__ = 'notifications'
+    id = Column(Integer, primary_key=True)
+    series_id = Column(Integer, ForeignKey('infoseries.id'))
+    notification_date = Column(Date)
+    new_episode = Column(String)
+    youtube_trailer = Column(String)
