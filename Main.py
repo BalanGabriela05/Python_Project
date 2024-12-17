@@ -127,25 +127,25 @@ def main():
                         print("Notification not saved.")
                     
             elif choice == "b":
-                series_id = int(input("Enter the ID of the series to delete: "))
-                if delete_series(db, user_id, series_id):
+                series_name = input("Write the name of the series to delete: ")
+                if delete_series(db, user_id, series_name):
                     print("Series deleted.")
                 else:
                     print("Series not found.")
 
             elif choice == "c":
-                series_id = int(input("Enter the ID of the series to update: "))
+                series_name = input("Enter the name of the series to update: ")
                 new_score = float(input("Enter the new score (1-10): "))
                 while not is_valid_score(new_score):
                     print("Invalid score. Please enter a number between 1 and 10.")
                     new_score = float(input("Enter the new score (1-10): "))
                 
-                update_score(db, user_id, series_id, new_score)
+                update_score(db, user_id, series_name, new_score)
                 print("Score updated.")
 
             elif choice == "d":
-                series_id = int(input("Enter the ID of the series to update: "))
-                if snooze_unsnooze_series(db, user_id, series_id):
+                series_name = input("Enter the name of the series to update: ")
+                if snooze_unsnooze_series(db, user_id, series_name):
                     print("Series snoozed.")
                 else:
                     print("Series unsnoozed.")

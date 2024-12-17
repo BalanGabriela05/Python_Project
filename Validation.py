@@ -34,4 +34,4 @@ def is_valid_link_imdb(link: str) -> bool:
     Returns:
     bool: True if the link is valid, False otherwise.
     """
-    return re.match(r'^https://www.imdb.com/title/tt\d{7}/.*$', link) is not None
+    return re.match(r'^https://www.imdb.com/title/(tt\d+)/.*$', link) is not None

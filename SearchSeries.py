@@ -91,7 +91,60 @@ def get_episodes(show_id: int, season_number: int):
         return []
 
 
+def get_video_trailer(series_id: int, season_number: int):
+    """
+    Get the YouTube trailer link for a season of a series.
+
+    Parameters:
+    series_id (int): The ID of the series.
+    season_number (int): The season number.
+
+    Returns: the youtube trailer
+    """
+    url = f"{BASE_URL}/tv/{series_id}/season/{season_number}/videos"
+    headers = {
+        "Authorization": f"Bearer {TMDB_API_TOKEN}",
+        "accept": "application/json"
+    }
+    params = {
+        "language": "en-US"
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        #print(data)
+        if "results" in data and data["results"]:
+            for video in data["results"]:
+                if video.get("site") == "YouTube" and video.get("type") == "Trailer":
+                    yt_link = f"https://www.youtube.com/watch?v={video['key']}"
+                    return yt_link
+        else:
+            print("No trailer found.")
+            yt_link = "No trailer found."
+            return yt_link
+    else:
+        print(f"Error fetching trailer: {response.status_code}")
+    
+# def main():
+#     show = get_show_by_imdb("/tt9813792")
+#     get_video_trailer(show["id"], 1)
+    
+# if __name__ == "__main__":
+#     main()
+
 def process_find_series_by_API(last_episode: str, series: Series):
+    """
+    The function processes the search for the next episode of a series by using the TMDB API.
+    
+    Parameters:
+    last_episode (str): The last episode watched in format SXEY.
+    series (Series): The series object.
+    
+    Returns: the next episode of the show afeter the last watched episode and the show ID (for the trailer)
+    
+    """
+    
     if not series:
         print("Series not found.")
         return
@@ -118,7 +171,7 @@ def process_find_series_by_API(last_episode: str, series: Series):
         next_season_episodes = get_episodes(show["id"], nr_season + 1)
         next_episodes.extend(next_season_episodes[:1 - len(next_episodes)])  
     
-    return next_episodes
+    return next_episodes, show["id"]
 
 
 def save_series_notification(db: Session, series_id: int, last_episode: str) -> bool:
@@ -134,7 +187,7 @@ def save_series_notification(db: Session, series_id: int, last_episode: str) -> 
     """
     series = db.query(Series).filter(Series.id == series_id).first()
     
-    next_episodes = process_find_series_by_API(last_episode, series)
+    next_episodes, show_id = process_find_series_by_API(last_episode, series)
 
     if next_episodes:
         for episode in next_episodes:
@@ -142,7 +195,7 @@ def save_series_notification(db: Session, series_id: int, last_episode: str) -> 
                 series_id=series_id,
                 notification_date=episode["air_date"],
                 new_episode=f"Season {episode['season_number']} Episode {episode['episode_number']}: {episode['name']}",
-                youtube_trailer=f"https://www.youtube.com"
+                youtube_trailer=get_video_trailer(show_id, episode["season_number"])
             )
             db.add(notification)
     else:
@@ -150,7 +203,7 @@ def save_series_notification(db: Session, series_id: int, last_episode: str) -> 
             series_id=series_id,
             notification_date=None,
             new_episode="The next episode has not been released yet.",
-            youtube_trailer=f"https://www.youtube.com"
+            youtube_trailer="No trailer found."
         )
         db.add(notification)
 
@@ -170,19 +223,19 @@ def update_series_notification(db: Session, series_id: int, last_episode: str) -
     """
     series = db.query(Series).filter(Series.id == series_id).first()
     
-    next_episodes = process_find_series_by_API(last_episode, series)
+    next_episodes, show_id = process_find_series_by_API(last_episode, series)
 
     if next_episodes:
         for episode in next_episodes:
             notification = db.query(Notifications).filter(Notifications.series_id == series_id).first()
             notification.notification_date = episode["air_date"]
             notification.new_episode = f"Season {episode['season_number']} Episode {episode['episode_number']}: {episode['name']}"
-            notification.youtube_trailer = f"https://www.youtube.com"
+            notification.youtube_trailer = get_video_trailer(show_id, episode["season_number"])
     else:
         notification = db.query(Notifications).filter(Notifications.series_id == series_id).first()
         notification.notification_date = None
         notification.new_episode = "The next episode has not been released yet."
-        notification.youtube_trailer = f"https://www.youtube.com"
+        notification.youtube_trailer = "No trailer found."
     db.commit()
     return True
 

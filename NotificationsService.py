@@ -17,5 +17,6 @@ def list_notifications(db, user_id):
                 print(f"Series name: {series.name}")
                 print(f"Next episode to watch: {notification.new_episode}")
                 print(f"Episode air date: {notification.notification_date}")
+                print(f"Youtube trailer: {notification.youtube_trailer}")
     else:
         print("No notifications found.")
