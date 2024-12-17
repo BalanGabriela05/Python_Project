@@ -150,3 +150,30 @@ def save_series_notification(db: Session, series_id: int, last_episode: str) -> 
 
     db.commit()
     return True
+
+def exist_series(imdb_link: str, last_episode: str) -> bool:
+    """
+    Check if a series exists in the TMDB API.
+
+    Parameters:
+    imdb_link (str): The IMDB link of the series.
+    last_episode (str): The last episode watched in format SXEY.
+
+    Returns:
+    bool: True if the series exists, False otherwise.
+    """
+    imdb_id = extract_imdb_id(imdb_link)
+    show = get_show_by_imdb(imdb_id)
+    if not show:
+        return False
+
+    nr_season, nr_episode = extract_number_season_episode(last_episode)
+    episodes = get_episodes(show["id"], nr_season)
+    if not episodes:
+        return False
+
+    for episode in episodes:
+        if episode["episode_number"] == nr_episode:
+            return True
+
+    return False

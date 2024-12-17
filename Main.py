@@ -1,10 +1,10 @@
 import sys
 from database.Connection import get_db
-from database.Models import User, Series, Notifications  
+from database.Models import User, Series
 from SeriesService import add_series, delete_series, update_score, snooze_unsnooze_series
 from UserService import login, sign_up
-from Validation import is_valid_episode_format, is_valid_score
-from SearchSeries import save_series_notification
+from Validation import is_valid_episode_format, is_valid_score, is_valid_link_imdb
+from SearchSeries import save_series_notification, exist_series
 from NotificationsService import list_notifications
 
 def main():
@@ -62,10 +62,19 @@ def main():
             if choice == "a":
                 name = input("Series name: ")
                 imdb_link = input("IMDB link: ")
+                while not is_valid_link_imdb(imdb_link):
+                    print("Invalid IMDB link. Please enter a valid IMDB link.")
+                    imdb_link = input("IMDB link: ")
                 last_episode = input("Last episode watched (format SXEY): ")
                 while not is_valid_episode_format(last_episode):
                     print("Invalid format. Please use SXEY where X and Y are numbers.")
                     last_episode = input("Last episode watched (format SXEY): ")
+                while not exist_series(imdb_link, last_episode):
+                    print("Series not found. Please enter a valid series.")
+                    last_episode = input("Last episode watched (format SXEY): ")
+                    while not is_valid_episode_format(last_episode):
+                        print("Invalid format. Please use SXEY where X and Y are numbers.")
+                        last_episode = input("Last episode watched (format SXEY): ")
 
                 score = float(input("Score (1-10): "))
                 while not is_valid_score(score):
