@@ -97,3 +97,41 @@ def snooze_unsnooze_series(db: Session, user_id: int, series_id: int) -> Series:
     print(f"New snoozed status: {series.snoozed}")
 
     return series.snoozed
+
+def series_exists(db: Session, user_id: int, name: str) -> bool:
+    """
+    Checks if a series exists in the database.
+
+    Parameters:
+    db (Session): The database session.
+    user_id (int): The ID of the user.
+    name (str): The name of the series.
+
+    Returns:
+    bool: True if the series exists, False otherwise.
+    """
+    series = db.query(Series).filter(Series.name == name, Series.user_id == user_id).first()
+    return series is not None
+
+def update_last_episode(db: Session, user_id: int, series_id: int, last_episode: str) -> Series:
+    """
+    Updates the last watched episode of a series.
+
+    Parameters:
+    db (Session): The database session.
+    user_id (int): The ID of the user updating the series.
+    series_id (int): The ID of the series to update.
+    last_episode (str): The last episode watched in format SXEY.
+
+    Returns:
+    updated_series (Series): The updated series.
+
+    """
+    series = db.query(Series).filter(Series.id == series_id, Series.user_id == user_id).first()
+    if not series:
+        print("Series not found.")
+        return None
+    series.last_episode = last_episode
+    db.commit()
+    db.refresh(series)
+    return series

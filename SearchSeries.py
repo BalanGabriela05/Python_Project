@@ -91,19 +91,7 @@ def get_episodes(show_id: int, season_number: int):
         return []
 
 
-def save_series_notification(db: Session, series_id: int, last_episode: str) -> bool:
-    """
-    Save a notification for the next episode of a series.
-
-    Parameters:
-    db (Session): The database session.
-    series_id (int): The ID of the series.
-    last_episode (str): The last episode watched in format SXEY.
-
-    Returns: True if the notification is saved successfully, False otherwise.
-    """
-
-    series = db.query(Series).filter(Series.id == series_id).first()
+def process_find_series_by_API(last_episode: str, series: Series):
     if not series:
         print("Series not found.")
         return
@@ -129,6 +117,24 @@ def save_series_notification(db: Session, series_id: int, last_episode: str) -> 
     if len(next_episodes) < 1:
         next_season_episodes = get_episodes(show["id"], nr_season + 1)
         next_episodes.extend(next_season_episodes[:1 - len(next_episodes)])  
+    
+    return next_episodes
+
+
+def save_series_notification(db: Session, series_id: int, last_episode: str) -> bool:
+    """
+    Save a notification for the next episode of a series.
+
+    Parameters:
+    db (Session): The database session.
+    series_id (int): The ID of the series.
+    last_episode (str): The last episode watched in format SXEY.
+
+    Returns: True if the notification is saved successfully, False otherwise.
+    """
+    series = db.query(Series).filter(Series.id == series_id).first()
+    
+    next_episodes = process_find_series_by_API(last_episode, series)
 
     if next_episodes:
         for episode in next_episodes:
@@ -148,6 +154,35 @@ def save_series_notification(db: Session, series_id: int, last_episode: str) -> 
         )
         db.add(notification)
 
+    db.commit()
+    return True
+
+def update_series_notification(db: Session, series_id: int, last_episode: str) -> bool:
+    """
+    Update the notification for the next episode of a series.
+
+    Parameters:
+    db (Session): The database session.
+    series_id (int): The ID of the series.
+    last_episode (str): The last episode watched in format SXEY.
+
+    Returns: True if the notification is updated successfully, False otherwise.
+    """
+    series = db.query(Series).filter(Series.id == series_id).first()
+    
+    next_episodes = process_find_series_by_API(last_episode, series)
+
+    if next_episodes:
+        for episode in next_episodes:
+            notification = db.query(Notifications).filter(Notifications.series_id == series_id).first()
+            notification.notification_date = episode["air_date"]
+            notification.new_episode = f"Season {episode['season_number']} Episode {episode['episode_number']}: {episode['name']}"
+            notification.youtube_trailer = f"https://www.youtube.com"
+    else:
+        notification = db.query(Notifications).filter(Notifications.series_id == series_id).first()
+        notification.notification_date = None
+        notification.new_episode = "The next episode has not been released yet."
+        notification.youtube_trailer = f"https://www.youtube.com"
     db.commit()
     return True
 
