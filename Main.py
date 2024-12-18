@@ -1,4 +1,5 @@
 import sys
+from sqlalchemy import func
 from database.Connection import get_db
 from database.Models import User, Series
 from SeriesService import add_series, delete_series, update_score, snooze_unsnooze_series, series_exists, update_last_episode
@@ -65,27 +66,30 @@ def main():
                     print("Series already exists.")
                     update = input("Do you want to update the series? (y/n): ")
                     if update == "y":
-                        series_id = db.query(Series).filter(Series.name == name, Series.user_id == user_id).first().id
-                        imdb_link = db.query(Series).filter(Series.name == name, Series.user_id == user_id).first().imdb_link
-                        new_last_episode = input("Last episode watched (format SXEY): ")
-                        while not is_valid_episode_format(new_last_episode):
-                            print("Invalid format. Please use SXEY where X and Y are numbers.")
-                            new_last_episode = input("Last episode watched (format SXEY): ")
-                        while not exist_series(imdb_link, new_last_episode):
-                            print("Series not found. Please enter a valid series.")
+                        series = db.query(Series).filter(func.lower(Series.name) == func.lower(name), Series.user_id == user_id).first()
+                        if series:
+                            series_id = series.id
+                            imdb_link = series.imdb_link
                             new_last_episode = input("Last episode watched (format SXEY): ")
                             while not is_valid_episode_format(new_last_episode):
                                 print("Invalid format. Please use SXEY where X and Y are numbers.")
                                 new_last_episode = input("Last episode watched (format SXEY): ")
-                        update_last_episode(db, user_id, series_id, new_last_episode)
-                        print("Score updated.")
-                        # Save notification for the next episode
-                        series_id = db.query(Series).filter(Series.name == name, Series.user_id == user_id).first().id
-
-                        if update_series_notification(db, series_id, new_last_episode):
-                            print("Notification saved.")
+                            while not exist_series(imdb_link, new_last_episode):
+                                print("Series not found. Please enter a valid series.")
+                                new_last_episode = input("Last episode watched (format SXEY): ")
+                                while not is_valid_episode_format(new_last_episode):
+                                    print("Invalid format. Please use SXEY where X and Y are numbers.")
+                                    new_last_episode = input("Last episode watched (format SXEY): ")
+                            update_last_episode(db, user_id, series_id, new_last_episode)
+                            print("Score updated.")
+                            
+                            # Save notification for the next episode
+                            if update_series_notification(db, series_id, new_last_episode):
+                                print("Notification saved.")
+                            else:
+                                print("Notification not saved.")
                         else:
-                            print("Notification not saved.")
+                            print("Series not found.")
                     elif update == "n":
                         continue
                 

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, func
 from sqlalchemy.ext.declarative import declarative_base
+
 
 # This is the base class for all models in the application
 Base = declarative_base()
@@ -40,7 +41,7 @@ class Series(Base):
     name = Column(String, nullable=False)
     imdb_link = Column(String, nullable=False)
     last_episode = Column(String, nullable=False)
-    last_viewed_date = Column(Date)
+    last_viewed_date = Column(Date, default=func.current_date())
     score = Column(Integer, nullable=False)
     snoozed = Column(Boolean, default=False)
 

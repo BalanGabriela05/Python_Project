@@ -17,7 +17,7 @@ CREATE TABLE infoseries (
     imdb_link TEXT NOT NULL,
     last_episode TEXT NOT NULL,
     last_viewed_date DATE DEFAULT CURRENT_DATE,
-    score INTEGER NOT NULL,
+    score FLOAT NOT NULL,
     snoozed BOOLEAN DEFAULT FALSE
 );
 

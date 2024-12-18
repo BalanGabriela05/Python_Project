@@ -106,7 +106,7 @@ def series_exists(db: Session, user_id: int, name: str) -> bool:
     Returns:
     bool: True if the series exists, False otherwise.
     """
-    series = db.query(Series).filter(Series.name == name, Series.user_id == user_id).first()
+    series = db.query(Series).filter(func.lower(Series.name) == func.lower(name), Series.user_id == user_id).first()
     return series is not None
 
 def update_last_episode(db: Session, user_id: int, series_id: int, last_episode: str) -> Series:
