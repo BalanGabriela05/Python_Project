@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
-from AddWindow import AddSeriesWindow
-from ViewWindow import ViewSeriesWindow
-from NotificationsWindow import ViewNotificationsWindow
+from interface.AddWindow import AddSeriesWindow
+from interface.ViewWindow import ViewSeriesWindow
+from interface.NotificationsWindow import ViewNotificationsWindow
 
 class MainWindow(QMainWindow):
     def __init__(self, user_id):
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         top_layout = QHBoxLayout()
 
         # Image
-        pixmap = QPixmap("icon.png") 
+        pixmap = QPixmap("images/icon.png") 
         image_label = QLabel()
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignLeft)
@@ -56,7 +56,7 @@ class MainWindow(QMainWindow):
         add_series_layout = QHBoxLayout()
 
         # Image for the "Add a New Series" section
-        add_series_pixmap = QPixmap("add.png") 
+        add_series_pixmap = QPixmap("images/add.png") 
         add_series_image_label = QLabel()
         add_series_image_label.setPixmap(add_series_pixmap)
         add_series_image_label.setAlignment(Qt.AlignLeft)
@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         view_series_layout = QHBoxLayout()
 
         # Image for the "View Your Series" section
-        view_series_pixmap = QPixmap("list.png") 
+        view_series_pixmap = QPixmap("images/list.png") 
         view_series_image_label = QLabel()
         view_series_image_label.setPixmap(view_series_pixmap)
         view_series_image_label.setAlignment(Qt.AlignLeft)
@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
         view_notifications_layout = QHBoxLayout()
 
         # Image for the "View Notifications" section
-        view_notifications_pixmap = QPixmap("notify.png") 
+        view_notifications_pixmap = QPixmap("images/notify.png") 
         view_notifications_image_label = QLabel()
         view_notifications_image_label.setPixmap(view_notifications_pixmap)
         view_notifications_image_label.setAlignment(Qt.AlignLeft)

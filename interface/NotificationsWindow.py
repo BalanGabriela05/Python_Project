@@ -1,7 +1,7 @@
 import sys
 import webbrowser
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSpacerItem, QSizePolicy
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
@@ -31,7 +31,7 @@ class ViewNotificationsWindow(QMainWindow):
         title_layout = QHBoxLayout()
 
         # Image
-        pixmap = QPixmap("movie.png") 
+        pixmap = QPixmap("images/movie.png") 
         image_label = QLabel()
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignCenter)
@@ -89,7 +89,7 @@ class ViewNotificationsWindow(QMainWindow):
                 button_layout = QHBoxLayout()
 
                 # Image for the YouTube button
-                button_pixmap = QPixmap("youtube.png") 
+                button_pixmap = QPixmap("images/youtube.png") 
                 button_image_label = QLabel()
                 button_image_label.setPixmap(button_pixmap)
                 button_image_label.setAlignment(Qt.AlignCenter)

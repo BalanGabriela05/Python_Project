@@ -1,5 +1,8 @@
 import sys
+import os
 from sqlalchemy import func
+# Add the following imports to the existing imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.Connection import get_db
 from database.Models import User, Series
 from SeriesService import add_series, delete_series, update_score, snooze_unsnooze_series_old, series_exists, update_last_episode

@@ -1,15 +1,17 @@
 import sys
+import os
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton,
     QLabel, QLineEdit, QMessageBox, QHBoxLayout, QSpacerItem, QSizePolicy
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
-from sqlalchemy.orm import sessionmaker
+# Add the following imports to the existing imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.Models import User
 from database.Connection import get_db
 from UserService import login, sign_up
-from MainWindow import MainWindow  # Importă noua fereastră
+from interface.MainWindow import MainWindow
 
 class LoginWindow(QMainWindow):
     def __init__(self):
@@ -32,7 +34,7 @@ class LoginWindow(QMainWindow):
         top_layout = QHBoxLayout()
 
         # for the image
-        pixmap = QPixmap("icon.png")
+        pixmap = QPixmap("images/icon.png")
         image_label = QLabel()
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignLeft)

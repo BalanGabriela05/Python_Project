@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QSpacerItem, QSizePolicy, QHBoxLayout, QInputDialog
+    QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QSpacerItem, QSizePolicy, QHBoxLayout, QInputDialog
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
@@ -34,7 +34,7 @@ class AddSeriesWindow(QMainWindow):
         title_layout = QHBoxLayout()
 
         # Image
-        pixmap = QPixmap("movie.png")  
+        pixmap = QPixmap("images/movie.png")
         image_label = QLabel()
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignCenter)

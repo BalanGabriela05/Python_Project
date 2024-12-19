@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QHeaderView, QMessageBox, QInputDialog, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
+    QMainWindow, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QHeaderView, QMessageBox, QInputDialog, QLabel, QHBoxLayout, QSpacerItem, QSizePolicy
 )
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
@@ -32,7 +32,7 @@ class ViewSeriesWindow(QMainWindow):
         title_layout = QHBoxLayout()
 
         # Image
-        pixmap = QPixmap("movie.png")  # Înlocuiește cu calea către imaginea ta
+        pixmap = QPixmap("images/movie.png")  # Înlocuiește cu calea către imaginea ta
         image_label = QLabel()
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignCenter)
