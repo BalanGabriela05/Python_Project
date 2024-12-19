@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, func
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -63,3 +64,5 @@ class Notifications(Base):
     notification_date = Column(Date)
     new_episode = Column(String)
     youtube_trailer = Column(String)
+    # Relație cu Series
+    series = relationship("Series", backref="notifications")

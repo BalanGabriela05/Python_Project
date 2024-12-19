@@ -1,4 +1,5 @@
 from database.Models import Notifications, Series
+from sqlalchemy.orm import joinedload
 
 def list_notifications(db, user_id):
     """
@@ -18,5 +19,20 @@ def list_notifications(db, user_id):
                 print(f"Next episode to watch: {notification.new_episode}")
                 print(f"Episode air date: {notification.notification_date}")
                 print(f"Youtube trailer: {notification.youtube_trailer}")
+                
     else:
         print("No notifications found.")
+        
+
+def all_notifications(db, user_id):
+    """
+    Returnează notificările unui utilizator, inclusiv numele seriei asociate,
+    doar pentru seriile care nu sunt snoozed.
+    """
+    return (
+        db.query(Notifications)
+        .join(Series, Notifications.series_id == Series.id)
+        .filter(Series.user_id == user_id, Series.snoozed == False)  # Adaugă condiția pentru unsnoozed
+        .options(joinedload(Notifications.series))  # Încarcă detalii despre serie
+        .all()
+    )

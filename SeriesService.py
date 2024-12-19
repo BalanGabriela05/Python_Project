@@ -73,7 +73,7 @@ def update_score(db: Session, user_id: int, series_name: str, new_score: float) 
         return True
     return False
 
-def snooze_unsnooze_series(db: Session, user_id: int, series_name: str) -> bool:
+def snooze_unsnooze_series_old(db: Session, user_id: int, series_name: str) -> bool:
     """
     Toggles the snoozed status of a series.
 
@@ -130,4 +130,43 @@ def update_last_episode(db: Session, user_id: int, series_id: int, last_episode:
     series.last_episode = last_episode
     db.commit()
     db.refresh(series)
+    return series
+
+from sqlalchemy.orm import Session
+from database.Models import Series
+
+def snooze_unsnooze_series(db: Session, user_id: int, series_id: int):
+    """
+    Funcție pentru a schimba starea snooze a unui serial.
+    
+    Parameters:
+    db (Session): Sesiunea bazei de date.
+    user_id (int): ID-ul utilizatorului.
+    series_id (int): ID-ul serialului.
+
+    Returns:
+    updated_series (Series): Serialul actualizat.
+    """
+    series = db.query(Series).filter(Series.id == series_id, Series.user_id == user_id).first()
+    if not series:
+        print("Series not found.")
+        return None
+    series.snoozed = not series.snoozed
+    db.commit()
+    db.refresh(series)
+    return series 
+
+def get_series_by_name(db: Session, user_id: int, series_name: str) -> Series:
+    """
+    Returnează un serial după nume.
+
+    Parameters:
+    db (Session): Sesiunea bazei de date.
+    user_id (int): ID-ul utilizatorului.
+    series_name (str): Numele serialului.
+
+    Returns:
+    series (Series): Serialul găsit.
+    """
+    series = db.query(Series).filter(func.lower(Series.name) == func.lower(series_name), Series.user_id == user_id).first()
     return series

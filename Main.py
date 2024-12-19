@@ -2,7 +2,7 @@ import sys
 from sqlalchemy import func
 from database.Connection import get_db
 from database.Models import User, Series
-from SeriesService import add_series, delete_series, update_score, snooze_unsnooze_series, series_exists, update_last_episode
+from SeriesService import add_series, delete_series, update_score, snooze_unsnooze_series_old, series_exists, update_last_episode
 from UserService import login, sign_up
 from Validation import is_valid_episode_format, is_valid_score, is_valid_link_imdb
 from SearchSeries import save_series_notification, exist_series, update_series_notification
@@ -149,7 +149,7 @@ def main():
 
             elif choice == "d":
                 series_name = input("Enter the name of the series to update: ")
-                if snooze_unsnooze_series(db, user_id, series_name):
+                if snooze_unsnooze_series_old(db, user_id, series_name):
                     print("Series snoozed.")
                 else:
                     print("Series unsnoozed.")

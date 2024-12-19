@@ -6,9 +6,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
 from sqlalchemy.orm import sessionmaker
-from database.Models import User  
-from database.Connection import get_db  
-from UserService import login, sign_up 
+from database.Models import User
+from database.Connection import get_db
+from UserService import login, sign_up
+from MainWindow import MainWindow  # Importă noua fereastră
 
 class LoginWindow(QMainWindow):
     def __init__(self):
@@ -31,7 +32,7 @@ class LoginWindow(QMainWindow):
         top_layout = QHBoxLayout()
 
         # for the image
-        pixmap = QPixmap("icon.png") 
+        pixmap = QPixmap("icon.png")
         image_label = QLabel()
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignLeft)
@@ -39,7 +40,7 @@ class LoginWindow(QMainWindow):
 
         # Title
         title_label = QLabel("Binge Watch")
-        title_label.setFont(QFont("Comic Sans MS", 25, QFont.Bold))
+        title_label.setFont(QFont("Courier New", 25, QFont.Bold))
         title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         top_layout.addWidget(title_label)
 
@@ -62,7 +63,7 @@ class LoginWindow(QMainWindow):
         self.username_input.setStyleSheet(self.input_style())
         self.username_input.setFixedWidth(400)
         self.username_input.setFixedHeight(70)
-        self.username_input.setFont(QFont("Comic Sans MS", 12))
+        self.username_input.setFont(QFont("Courier New", 12))
         form_layout.addWidget(self.username_input)
 
         # Space between elements
@@ -75,7 +76,7 @@ class LoginWindow(QMainWindow):
         self.password_input.setStyleSheet(self.input_style())
         self.password_input.setFixedWidth(400)
         self.password_input.setFixedHeight(70)
-        self.password_input.setFont(QFont("Comic Sans MS", 12))
+        self.password_input.setFont(QFont("Courier New", 12))
         form_layout.addWidget(self.password_input)
 
         # Space between elements
@@ -86,7 +87,7 @@ class LoginWindow(QMainWindow):
         login_button.setStyleSheet(self.button_style())
         login_button.setFixedWidth(150)
         login_button.setFixedHeight(60)
-        login_button.setFont(QFont("Comic Sans MS", 11))
+        login_button.setFont(QFont("Courier New", 11))
         login_button.clicked.connect(self.handle_login)
         form_layout.addWidget(login_button, alignment=Qt.AlignCenter)
 
@@ -98,14 +99,14 @@ class LoginWindow(QMainWindow):
         signup_button.setStyleSheet(self.button_style())
         signup_button.setFixedWidth(150)
         signup_button.setFixedHeight(60)
-        signup_button.setFont(QFont("Comic Sans MS", 11))
+        signup_button.setFont(QFont("Courier New", 11))
         signup_button.clicked.connect(self.handle_signup)
         form_layout.addWidget(signup_button, alignment=Qt.AlignCenter)
 
         # Add form_layout to main_layout
         main_layout.addLayout(form_layout)
 
-        # Spacer 
+        # Spacer
         main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
     def input_style(self):
@@ -139,7 +140,10 @@ class LoginWindow(QMainWindow):
         db = next(get_db())
 
         if login(username, password, db):
-            QMessageBox.information(self, "Login", f"Welcome back, {username}!")
+            user_id = db.query(User).filter(User.username == username).first().user_id
+            self.main_window = MainWindow(user_id)
+            self.main_window.show()
+            self.close()
         else:
             QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
 
@@ -150,7 +154,10 @@ class LoginWindow(QMainWindow):
         db = next(get_db())
 
         if sign_up(username, password, db):
-            QMessageBox.information(self, "Sign Up", f"Account created for {username}!")
+            user_id = db.query(User).filter(User.username == username).first().user_id
+            self.main_window = MainWindow(user_id)
+            self.main_window.show()
+            self.close()
         else:
             QMessageBox.warning(self, "Sign Up Failed", "Username already exists.")
 
