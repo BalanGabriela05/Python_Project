@@ -137,15 +137,14 @@ from database.Models import Series
 
 def snooze_unsnooze_series(db: Session, user_id: int, series_id: int):
     """
-    Funcție pentru a schimba starea snooze a unui serial.
+    Function to snooze or unsnooze a series.
     
     Parameters:
-    db (Session): Sesiunea bazei de date.
-    user_id (int): ID-ul utilizatorului.
-    series_id (int): ID-ul serialului.
-
-    Returns:
-    updated_series (Series): Serialul actualizat.
+    db (Session): The database session.
+    user_id (int): The ID of the user.
+    series_id (int): The ID of the series.
+    
+    Returns: The updated series.
     """
     series = db.query(Series).filter(Series.id == series_id, Series.user_id == user_id).first()
     if not series:
@@ -158,15 +157,15 @@ def snooze_unsnooze_series(db: Session, user_id: int, series_id: int):
 
 def get_series_by_name(db: Session, user_id: int, series_name: str) -> Series:
     """
-    Returnează un serial după nume.
-
+    Returns a series by name.
+    
     Parameters:
-    db (Session): Sesiunea bazei de date.
-    user_id (int): ID-ul utilizatorului.
-    series_name (str): Numele serialului.
-
-    Returns:
-    series (Series): Serialul găsit.
+    db (Session): The database session.
+    user_id (int): The ID of the user.
+    series_name (str): The name of the series.
+    
+    Returns: The series with the given name.
+    
     """
     series = db.query(Series).filter(func.lower(Series.name) == func.lower(series_name), Series.user_id == user_id).first()
     return series

@@ -18,7 +18,7 @@ class LoginWindow(QMainWindow):
         super().__init__()
 
         # configuration for the window
-        self.setWindowTitle("Login - Series Manager")
+        self.setWindowTitle("Authentication")
         self.setGeometry(800, 300, 800, 600)
         self.setStyleSheet("background-color: #191d24; color: white;")
 

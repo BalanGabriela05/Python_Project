@@ -26,13 +26,17 @@ def list_notifications(db, user_id):
 
 def all_notifications(db, user_id):
     """
-    Returnează notificările unui utilizator, inclusiv numele seriei asociate,
-    doar pentru seriile care nu sunt snoozed.
+    Returns all notifications for a user that are not snoozed.
+    
+    Parameters:
+    db (Session): The database session.
+    user_id (int): The ID of the user.
+    
     """
     return (
         db.query(Notifications)
         .join(Series, Notifications.series_id == Series.id)
-        .filter(Series.user_id == user_id, Series.snoozed == False)  # Adaugă condiția pentru unsnoozed
-        .options(joinedload(Notifications.series))  # Încarcă detalii despre serie
+        .filter(Series.user_id == user_id, Series.snoozed == False)  
+        .options(joinedload(Notifications.series)) 
         .all()
     )
