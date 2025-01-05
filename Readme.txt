@@ -2,7 +2,7 @@
 
 ## **1. User Authentication**
 
-![User Authentication](readme/auth.png)
+![User Authentication](./readme/auth.png)
 
 This section encompasses the login and signup processes, including all necessary validations:  
 - Handling **incorrect username or password**.  
