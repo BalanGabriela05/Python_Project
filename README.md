@@ -11,7 +11,7 @@ This section encompasses the login and signup processes, including all necessary
 ---
 ## **2. Main Window**
 
-
+![Main](./readme/main.png)
 
 ### **Features**
 1. **Add a New Episode**  
